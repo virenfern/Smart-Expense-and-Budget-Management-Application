@@ -5,19 +5,66 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+const API_URL = "http://127.0.0.1:8000";
+
 export default function LoginPage() {
   const router = useRouter();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  function handleLogin(e: React.FormEvent<HTMLFormElement>) {
+  async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setError("");
 
-    // Dummy login. No credentials are checked.
-    localStorage.setItem("pennywise-logged-in", "true");
-    localStorage.setItem("pennywise-user-email", email);
+    if (!email.trim() || !password) {
+      setError("Please enter your email and password.");
+      return;
+    }
 
-    router.push("/");
+    setLoading(true);
+
+    try {
+      const response = await fetch(`${API_URL}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email.trim().toLowerCase(),
+          password,
+        }),
+      });
+
+      const data = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        setError(
+          typeof data?.detail === "string"
+            ? data.detail
+            : "Login failed. Please check your credentials."
+        );
+        return;
+      }
+
+      // Temporary prototype storage. Prefer secure, HttpOnly cookies
+      // for production authentication.
+      localStorage.setItem("pennywise-logged-in", "true");
+      localStorage.setItem("pennywise-user-email", data.user.email);
+      localStorage.setItem("pennywise-user-name", data.user.full_name);
+      localStorage.setItem("pennywise-user-id", data.user.id);
+      localStorage.setItem("pennywise-access-token", data.access_token);
+
+      router.push("/");
+    } catch {
+      setError(
+        "Cannot connect to the server. Make sure the backend is running."
+      );
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -40,9 +87,11 @@ export default function LoginPage() {
             <input
               id="email"
               type="email"
+              autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
+              required
               className="w-full rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-blue-500"
             />
           </div>
@@ -54,23 +103,45 @@ export default function LoginPage() {
             <input
               id="password"
               type="password"
+              autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter any password"
+              placeholder="Enter your password"
+              required
               className="w-full rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-blue-500"
             />
           </div>
 
+          {error && (
+            <p
+              role="alert"
+              className="rounded-lg bg-rose-50 p-3 text-sm text-rose-700"
+            >
+              {error}
+            </p>
+          )}
+
           <button
             type="submit"
-            className="w-full rounded-lg bg-slate-900 px-4 py-3 font-medium text-white transition hover:bg-slate-700"
+            disabled={loading}
+            className="w-full rounded-lg bg-slate-900 px-4 py-3 font-medium text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Sign in
+            {loading ? "Signing in..." : "Sign in"}
           </button>
         </form>
 
-        <p className="mt-5 text-center text-xs text-slate-400">
-          Demo login only. Any credentials will work.
+        <p className="mt-5 text-center text-sm text-slate-500">
+          Don't have an account?{" "}
+          <Link
+            href="/register"
+            className="font-semibold text-indigo-600 hover:underline"
+          >
+            Create one
+          </Link>
+        </p>
+
+        <p className="mt-4 text-center text-xs text-slate-400">
+          Your credentials are verified by the PennyWise backend.
         </p>
       </div>
     </main>
