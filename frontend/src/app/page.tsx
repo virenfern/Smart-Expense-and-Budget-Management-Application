@@ -96,6 +96,11 @@ export default function Home() {
       return;
     }
 
+    if (label === "Transactions") {
+      router.push("/transactions");
+      return;
+    }
+
     setActive(label);
   }
 
@@ -176,7 +181,7 @@ export default function Home() {
 
           <button
             type="button"
-            onClick={() => setActive("Transactions")}
+            onClick={() => router.push("/transactions")}
             className="rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700"
           >
             + Add transaction
@@ -233,8 +238,8 @@ export default function Home() {
 
               <button
                 type="button"
-                onClick={() => setActive("Transactions")}
-                className="text-sm font-semibold text-indigo-600"
+                onClick={() => router.push("/transactions")}
+                className="text-sm font-semibold text-indigo-600 hover:text-indigo-800"
               >
                 View all
               </button>
