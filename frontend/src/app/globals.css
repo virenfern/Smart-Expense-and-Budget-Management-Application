@@ -1,26 +1,111 @@
+
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
+  --background: #f6f7fb;
+  --foreground: #1e293b;
+  --surface: #ffffff;
+  --surface-muted: #f8fafc;
+  --border: #e2e8f0;
+  --muted: #64748b;
+  --sidebar: #ffffff;
+  --sidebar-strong: #eef2ff;
+  --button-soft: #f8fafc;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --background: #020817;
+  --foreground: #e2e8f0;
+  --surface: #0f172a;
+  --surface-muted: #111827;
+  --border: #334155;
+  --muted: #94a3b8;
+  --sidebar: #0f172a;
+  --sidebar-strong: #1e293b;
+  --button-soft: #111827;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  min-height: 100%;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+html[data-theme="dark"] body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+/* Base surfaces */
+html[data-theme="dark"] .bg-white,
+html[data-theme="dark"] .bg-slate-50,
+html[data-theme="dark"] .bg-slate-100,
+html[data-theme="dark"] .bg-\[\#f6f7fb\],
+html[data-theme="dark"] aside,
+html[data-theme="dark"] section,
+html[data-theme="dark"] article,
+html[data-theme="dark"] .rounded-2xl {
+  background-color: var(--surface) !important;
+}
+
+/* Sidebar / dark backgrounds */
+html[data-theme="dark"] .bg-indigo-600 {
+  background-color: #4f46e5 !important;
+}
+
+/* Text */
+html[data-theme="dark"] .text-slate-800,
+html[data-theme="dark"] .text-slate-700,
+html[data-theme="dark"] .text-slate-600,
+html[data-theme="dark"] .text-slate-500,
+html[data-theme="dark"] .text-slate-400,
+html[data-theme="dark"] .text-slate-900 {
+  color: var(--foreground) !important;
+}
+
+/* Border fixes */
+html[data-theme="dark"] .border-slate-200,
+html[data-theme="dark"] .border-slate-300,
+html[data-theme="dark"] .border-slate-100,
+html[data-theme="dark"] .divide-slate-100 > :not(:last-child) {
+  border-color: var(--border) !important;
+}
+
+/* Inputs */
+html[data-theme="dark"] input,
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea {
+  background-color: var(--surface) !important;
+  color: var(--foreground) !important;
+  border-color: var(--border) !important;
+}
+
+html[data-theme="dark"] input::placeholder,
+html[data-theme="dark"] textarea::placeholder {
+  color: var(--muted) !important;
+}
+
+html[data-theme="dark"] option {
+  background-color: var(--surface);
+  color: var(--foreground);
+}
+
+/* Hover states */
+html[data-theme="dark"] .hover\:bg-slate-50:hover {
+  background-color: var(--surface-muted) !important;
+}
+
+html[data-theme="dark"] .hover\:bg-slate-100:hover {
+  background-color: var(--surface-muted) !important;
+}
+
+html[data-theme="dark"] .bg-indigo-50 {
+  background-color: rgba(99, 102, 241, 0.16) !important;
 }

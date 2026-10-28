@@ -3,6 +3,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import SignOutButton from "@/components/SignOutButton";
 
 const transactions = [
   {
@@ -106,30 +107,23 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-[#f6f7fb] text-slate-800 md:flex">
-      <aside className="w-full shrink-0 bg-white p-5 md:min-h-screen md:w-64 md:border-r md:border-slate-200">
+      <aside className="flex w-full shrink-0 flex-col bg-white p-5 md:min-h-screen md:w-64 md:border-r md:border-slate-200">
         <div className="mb-8 flex items-center gap-3">
           <div className="grid h-10 w-10 place-items-center rounded-xl bg-indigo-600 text-xl font-bold text-white">
             ₹
           </div>
-
+        
           <div>
-            <h1 className="text-lg font-bold tracking-tight">
-              PennyWise
-            </h1>
-            <p className="text-xs text-slate-500">
-              Smart money management
-            </p>
+            <h1 className="text-lg font-bold tracking-tight">PennyWise</h1>
+            <p className="text-xs text-slate-500">Smart money management</p>
           </div>
         </div>
-
+        
         <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-slate-400">
           Workspace
         </p>
-
-        <nav
-          aria-label="Main navigation"
-          className="flex gap-2 overflow-x-auto md:flex-col"
-        >
+        
+        <nav aria-label="Main navigation" className="flex gap-2 overflow-x-auto md:flex-col">
           {links.map(([icon, label]) => (
             <button
               key={label}
@@ -149,15 +143,18 @@ export default function Home() {
             </button>
           ))}
         </nav>
-
+        
         <div className="mt-8 rounded-2xl bg-indigo-600 p-4 text-white">
-          <p className="text-sm font-semibold">
-            Your money, your goals.
-          </p>
+          <p className="text-sm font-semibold">Your money, your goals.</p>
           <p className="mt-2 text-xs leading-5 text-indigo-100">
-            Track spending and build better financial habits, one
-            day at a time.
+            Track spending and build better financial habits, one day at a time.
           </p>
+        </div>
+        
+        <div className="mt-auto pt-6">
+          <div className="flex justify-center">
+            <SignOutButton />
+          </div>
         </div>
       </aside>
 
@@ -333,7 +330,7 @@ export default function Home() {
 
             <button
               type="button"
-              onClick={() => setActive("Budgets")}
+              onClick={() => router.push("/budgets")}
               className="mt-7 w-full rounded-xl border border-slate-200 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
             >
               Manage budgets

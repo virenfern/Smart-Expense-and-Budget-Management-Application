@@ -2,6 +2,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 
 type Transaction = {
   id: number;
@@ -123,6 +124,13 @@ export default function TransactionsPage() {
             <p className="mb-1 text-sm font-medium text-indigo-600">
               PENNYWISE / FINANCES
             </p>
+            <Link
+                href="/"
+                className="mb-4 inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
+            >
+              <span aria-hidden="true">←</span>
+                Back to Dashboard
+            </Link>
             <h1 className="text-3xl font-bold tracking-tight">
               Transactions
             </h1>
