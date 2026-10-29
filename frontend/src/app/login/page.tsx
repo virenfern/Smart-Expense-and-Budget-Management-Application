@@ -5,7 +5,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-const API_URL = "http://127.0.0.1:8000";
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  "https://pennywise-api-y162.onrender.com";
 
 export default function LoginPage() {
   const router = useRouter();
