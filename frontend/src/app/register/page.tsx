@@ -4,6 +4,8 @@
 import Link from "next/link";
 import { useState } from "react";
 
+const API_URL = "http://127.0.0.1:8000";
+
 export default function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -12,8 +14,11 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(
+    event: React.FormEvent<HTMLFormElement>
+  ) {
     event.preventDefault();
     setError("");
     setMessage("");
@@ -34,7 +39,9 @@ export default function RegisterPage() {
     }
 
     if (!/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) {
-      setError("Password must contain at least one letter and one number.");
+      setError(
+        "Password must contain at least one letter and one number."
+      );
       return;
     }
 
@@ -43,9 +50,54 @@ export default function RegisterPage() {
       return;
     }
 
-    setMessage(
-      "Demo only: all validations passed. Account creation is not connected yet."
-    );
+    setLoading(true);
+
+    try {
+      const response = await fetch(`${API_URL}/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          full_name: name.trim(),
+          email: email.trim().toLowerCase(),
+          password,
+          confirm_password: confirmPassword,
+        }),
+      });
+
+      const data = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        const detail = data?.detail;
+
+        if (typeof detail === "string") {
+          setError(detail);
+        } else if (Array.isArray(detail)) {
+          setError(
+            detail.map((item: { msg?: string }) => item.msg ?? "Invalid input")
+              .join(" ")
+          );
+        } else {
+          setError("Registration failed. Please try again.");
+        }
+        return;
+      }
+
+      setMessage(
+        `Account created successfully for ${data.full_name}. You can now sign in.`
+      );
+      setName("");
+      setEmail("");
+      setPassword("");
+      setConfirmPassword("");
+    } catch {
+      setError(
+        "Cannot connect to the server. Make sure the FastAPI backend is running."
+      );
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -125,7 +177,10 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <label htmlFor="confirm-password" className="mb-2 block text-sm font-medium">
+            <label
+              htmlFor="confirm-password"
+              className="mb-2 block text-sm font-medium"
+            >
               Confirm password
             </label>
             <input
@@ -141,34 +196,44 @@ export default function RegisterPage() {
           </div>
 
           {error && (
-            <p role="alert" className="rounded-lg bg-rose-50 p-3 text-sm text-rose-700">
+            <p
+              role="alert"
+              className="rounded-lg bg-rose-50 p-3 text-sm text-rose-700"
+            >
               {error}
             </p>
           )}
 
           {message && (
-            <p role="status" className="rounded-lg bg-amber-50 p-3 text-sm text-amber-800">
+            <p
+              role="status"
+              className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800"
+            >
               {message}
             </p>
           )}
 
           <button
             type="submit"
-            className="w-full rounded-xl bg-indigo-600 py-3 font-semibold text-white transition hover:bg-indigo-700"
+            disabled={loading}
+            className="w-full rounded-xl bg-indigo-600 py-3 font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Create account
+            {loading ? "Creating account..." : "Create account"}
           </button>
         </form>
 
         <p className="mt-7 text-center text-sm text-slate-500">
           Already registered?{" "}
-          <Link href="/login" className="font-semibold text-indigo-600 hover:underline">
+          <Link
+            href="/login"
+            className="font-semibold text-indigo-600 hover:underline"
+          >
             Sign in
           </Link>
         </p>
 
         <p className="mt-8 text-center text-xs text-slate-400">
-          Frontend demo. No account or password is stored.
+          Your password is securely hashed by the backend before storage.
         </p>
       </section>
     </main>
