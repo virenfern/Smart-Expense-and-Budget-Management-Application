@@ -5,7 +5,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -49,8 +50,8 @@ export default function LoginPage() {
         return;
       }
 
-      // Temporary prototype storage. Prefer secure, HttpOnly cookies
-      // for production authentication.
+      // Temporary prototype storage.
+      // Prefer secure, HttpOnly cookies for production authentication.
       localStorage.setItem("pennywise-logged-in", "true");
       localStorage.setItem("pennywise-user-email", data.user.email);
       localStorage.setItem("pennywise-user-name", data.user.full_name);

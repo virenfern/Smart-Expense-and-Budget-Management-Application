@@ -4,7 +4,8 @@
 import Link from "next/link";
 import { useState } from "react";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
 export default function RegisterPage() {
   const [name, setName] = useState("");
@@ -75,18 +76,24 @@ export default function RegisterPage() {
           setError(detail);
         } else if (Array.isArray(detail)) {
           setError(
-            detail.map((item: { msg?: string }) => item.msg ?? "Invalid input")
+            detail
+              .map(
+                (item: { msg?: string }) =>
+                  item.msg ?? "Invalid input"
+              )
               .join(" ")
           );
         } else {
           setError("Registration failed. Please try again.");
         }
+
         return;
       }
 
       setMessage(
         `Account created successfully for ${data.full_name}. You can now sign in.`
       );
+
       setName("");
       setEmail("");
       setPassword("");
@@ -110,15 +117,20 @@ export default function RegisterPage() {
         <h1 className="mt-8 text-3xl font-bold tracking-tight text-slate-900">
           Create your account
         </h1>
+
         <p className="mt-2 text-sm text-slate-500">
           Start building better financial habits.
         </p>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-5">
           <div>
-            <label htmlFor="name" className="mb-2 block text-sm font-medium">
+            <label
+              htmlFor="name"
+              className="mb-2 block text-sm font-medium"
+            >
               Full name
             </label>
+
             <input
               id="name"
               type="text"
@@ -133,9 +145,13 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <label htmlFor="email" className="mb-2 block text-sm font-medium">
+            <label
+              htmlFor="email"
+              className="mb-2 block text-sm font-medium"
+            >
               Email address
             </label>
+
             <input
               id="email"
               type="email"
@@ -149,9 +165,13 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <label htmlFor="password" className="mb-2 block text-sm font-medium">
+            <label
+              htmlFor="password"
+              className="mb-2 block text-sm font-medium"
+            >
               Password
             </label>
+
             <div className="flex rounded-xl border border-slate-200 focus-within:border-indigo-500">
               <input
                 id="password"
@@ -163,6 +183,7 @@ export default function RegisterPage() {
                 required
                 className="min-w-0 flex-1 rounded-l-xl px-4 py-3 text-sm outline-none"
               />
+
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
@@ -171,6 +192,7 @@ export default function RegisterPage() {
                 {showPassword ? "Hide" : "Show"}
               </button>
             </div>
+
             <p className="mt-2 text-xs text-slate-400">
               Use at least 8 characters, including a letter and a number.
             </p>
@@ -183,6 +205,7 @@ export default function RegisterPage() {
             >
               Confirm password
             </label>
+
             <input
               id="confirm-password"
               type={showPassword ? "text" : "password"}
