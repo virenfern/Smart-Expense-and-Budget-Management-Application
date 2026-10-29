@@ -102,6 +102,17 @@ export default function Home() {
       return;
     }
 
+    if (label === "Reports") {
+    router.push("/reports");
+    return;
+  }
+
+  if (label === "Settings") {
+    router.push("/profile");
+    return;
+  }
+
+
     setActive(label);
   }
 
