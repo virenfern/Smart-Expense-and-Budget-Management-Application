@@ -1,43 +1,107 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import SignOutButton from "@/components/SignOutButton";
 
 export default function Home() {
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [userName, setUserName] = useState("");
+
+  useEffect(() => {
+    const token = localStorage.getItem("pennywise-access-token");
+    const status = localStorage.getItem("pennywise-logged-in");
+
+    if (token && status === "true") {
+      setLoggedIn(true);
+      setUserName(
+        localStorage.getItem("pennywise-user-name") || "User"
+      );
+    }
+  }, []);
+
+  if (!loggedIn) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-[#f6f7fb] p-5">
+        <section className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm sm:p-10">
+          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-indigo-600">
+            PennyWise
+          </p>
+
+          <h1 className="mt-4 text-3xl font-bold text-slate-900 sm:text-4xl">
+            Welcome to smart money management
+          </h1>
+
+          <p className="mt-3 text-sm text-slate-500 sm:text-base">
+            Please sign in to continue, or create a new account to get started.
+          </p>
+
+          <div className="mt-8 grid gap-3 sm:grid-cols-2">
+            <Link href="/login" className="rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-700">
+              Log in
+            </Link>
+
+            <Link href="/register" className="rounded-xl border border-indigo-200 bg-indigo-50 px-5 py-3 text-sm font-semibold text-indigo-700 hover:bg-indigo-100">
+              Sign up
+            </Link>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  const sections = [
+    { name: "Transactions", description: "Manage your income and expenses", href: "/transactions" },
+    { name: "Budgets", description: "Track your spending limits", href: "/budgets" },
+    { name: "Reports", description: "Review your financial reports", href: "/reports" },
+    { name: "Profile", description: "Manage your account", href: "/profile" },
+  ];
+
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#f6f7fb] p-5">
-      <section className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm sm:p-10">
-        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-indigo-600">
-          PennyWise
-        </p>
+    <main className="min-h-screen bg-[#f6f7fb] p-6 sm:p-10">
+      <div className="mx-auto max-w-6xl">
+        <header className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-widest text-indigo-600">
+              PennyWise
+            </p>
+            <h1 className="mt-2 text-3xl font-bold text-slate-900">
+              Welcome, {userName}!
+            </h1>
+            <p className="mt-2 text-slate-500">
+              Your personal finance dashboard
+            </p>
+          </div>
 
-        <h1 className="mt-4 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-          Welcome to smart money management
-        </h1>
+          <SignOutButton />
+        </header>
 
-        <p className="mt-3 text-sm text-slate-500 sm:text-base">
-          Please sign in to continue, or create a new account to get started.
-        </p>
+        <section className="mt-10">
+          <h2 className="text-xl font-semibold text-slate-900">
+            Your workspace
+          </h2>
 
-        <div className="mt-8 grid gap-3 sm:grid-cols-2">
-          <Link
-            href="/login"
-            className="rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-700"
-          >
-            Log in
-          </Link>
-
-          <Link
-            href="/register"
-            className="rounded-xl border border-indigo-200 bg-indigo-50 px-5 py-3 text-sm font-semibold text-indigo-700 transition hover:bg-indigo-100"
-          >
-            Sign up
-          </Link>
-        </div>
-
-        <p className="mt-6 text-xs text-slate-400">
-          Your account and password are handled by the backend API.
-        </p>
-      </section>
+          <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {sections.map((section) => (
+              <Link
+                key={section.href}
+                href={section.href}
+                className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+              >
+                <h3 className="text-lg font-semibold text-slate-900">
+                  {section.name}
+                </h3>
+                <p className="mt-2 text-sm text-slate-500">
+                  {section.description}
+                </p>
+                <p className="mt-5 text-sm font-semibold text-indigo-600">
+                  Open section →
+                </p>
+              </Link>
+            ))}
+          </div>
+        </section>
+      </div>
     </main>
   );
 }
