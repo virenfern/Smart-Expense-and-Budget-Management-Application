@@ -1,5 +1,6 @@
 
 "use client";
+import Link from "next/link";
 
 import { useEffect, useMemo, useState } from "react";
 
@@ -159,26 +160,35 @@ export default function BudgetsPage() {
   return (
     <main className="min-h-screen bg-[#f6f7fb] p-5 text-slate-800 md:p-9">
       <div className="mx-auto max-w-6xl">
-        <header className="mb-8 flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <p className="mb-1 text-sm text-slate-500">
-              PennyWise / Budgets
-            </p>
-            <h1 className="text-3xl font-bold tracking-tight">
-              Your budgets
-            </h1>
-            <p className="mt-2 text-sm text-slate-500">
-              Set spending limits and keep your expenses in check.
-            </p>
-          </div>
+<header className="mb-8 flex flex-wrap items-center justify-between gap-4">
+  <div>
+    <p className="mb-1 text-sm text-slate-500">
+      PennyWise / Budgets
+    </p>
+    <h1 className="text-3xl font-bold tracking-tight">
+      Your budgets
+    </h1>
+    <p className="mt-2 text-sm text-slate-500">
+      Set spending limits and keep your expenses in check.
+    </p>
+  </div>
 
-          <button
-            onClick={openCreateForm}
-            className="rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white hover:bg-indigo-700"
-          >
-            + Create budget
-          </button>
-        </header>
+  <div className="flex flex-wrap items-center gap-3">
+    <Link
+      href="/"
+      className="rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+    >
+      ← Back to Dashboard
+    </Link>
+
+    <button
+      onClick={openCreateForm}
+      className="rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white hover:bg-indigo-700"
+    >
+      + Create budget
+    </button>
+  </div>
+</header>
 
         <section className="mb-7 grid gap-4 sm:grid-cols-3">
           <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
