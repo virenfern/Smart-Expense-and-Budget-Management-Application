@@ -1,12 +1,127 @@
+
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import SignOutButton from "@/components/SignOutButton";
+
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+
+type Transaction = {
+  id: string;
+  type: "income" | "expense";
+  amount: number;
+};
+
+type Budget = {
+  id: string;
+  category_id: string;
+  amount: number;
+  period: "weekly" | "monthly";
+  spent: number;
+  remaining: number;
+};
+
+function formatMoney(amount: number) {
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 2,
+  }).format(amount);
+}
 
 export default function Home() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
+
+  const [availableBalance, setAvailableBalance] = useState(0);
+  const [remainingBudget, setRemainingBudget] = useState(0);
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const loadDashboard = useCallback(async () => {
+    const token = localStorage.getItem("pennywise-access-token");
+
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError("");
+
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+
+      const [transactionsResponse, budgetsResponse] =
+        await Promise.all([
+          fetch(`${API_URL}/transactions`, { headers }),
+          fetch(`${API_URL}/budgets`, { headers }),
+        ]);
+
+      if (!transactionsResponse.ok) {
+        throw new Error("Could not load transactions.");
+      }
+
+      if (!budgetsResponse.ok) {
+        throw new Error("Could not load budgets.");
+      }
+
+      const transactions: Transaction[] =
+        await transactionsResponse.json();
+
+      const budgets: Budget[] = await budgetsResponse.json();
+
+      const totalIncome = transactions
+        .filter((transaction) => transaction.type === "income")
+        .reduce(
+          (sum, transaction) => sum + Number(transaction.amount),
+          0
+        );
+
+      const totalExpenses = transactions
+        .filter((transaction) => transaction.type === "expense")
+        .reduce(
+          (sum, transaction) => sum + Number(transaction.amount),
+          0
+        );
+
+      // Keep only one budget per category.
+      // Monthly takes priority over weekly to avoid overlapping spending.
+      const budgetsByCategory = new Map<string, Budget>();
+
+      budgets.forEach((budget) => {
+        const existing = budgetsByCategory.get(budget.category_id);
+
+        if (
+          !existing ||
+          (budget.period === "monthly" && existing.period === "weekly")
+        ) {
+          budgetsByCategory.set(budget.category_id, budget);
+        }
+      });
+
+      const remaining = Array.from(budgetsByCategory.values()).reduce(
+        (sum, budget) => sum + Number(budget.remaining),
+        0
+      );
+
+      setAvailableBalance(totalIncome - totalExpenses);
+      setRemainingBudget(remaining);
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Something went wrong while loading dashboard data."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem("pennywise-access-token");
@@ -17,8 +132,11 @@ export default function Home() {
       setUserName(
         localStorage.getItem("pennywise-user-name") || "User"
       );
+      loadDashboard();
+    } else {
+      setLoading(false);
     }
-  }, []);
+  }, [loadDashboard]);
 
   if (!loggedIn) {
     return (
@@ -37,11 +155,17 @@ export default function Home() {
           </p>
 
           <div className="mt-8 grid gap-3 sm:grid-cols-2">
-            <Link href="/login" className="rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-700">
+            <Link
+              href="/login"
+              className="rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-700"
+            >
               Log in
             </Link>
 
-            <Link href="/register" className="rounded-xl border border-indigo-200 bg-indigo-50 px-5 py-3 text-sm font-semibold text-indigo-700 hover:bg-indigo-100">
+            <Link
+              href="/register"
+              className="rounded-xl border border-indigo-200 bg-indigo-50 px-5 py-3 text-sm font-semibold text-indigo-700 hover:bg-indigo-100"
+            >
               Sign up
             </Link>
           </div>
@@ -51,10 +175,26 @@ export default function Home() {
   }
 
   const sections = [
-    { name: "Transactions", description: "Manage your income and expenses", href: "/transactions" },
-    { name: "Budgets", description: "Track your spending limits", href: "/budgets" },
-    { name: "Reports", description: "Review your financial reports", href: "/reports" },
-    { name: "Profile", description: "Manage your account", href: "/profile" },
+    {
+      name: "Transactions",
+      description: "Manage your income and expenses",
+      href: "/transactions",
+    },
+    {
+      name: "Budgets",
+      description: "Track your spending limits",
+      href: "/budgets",
+    },
+    {
+      name: "Reports",
+      description: "Review your financial reports",
+      href: "/reports",
+    },
+    {
+      name: "Profile",
+      description: "Manage your account",
+      href: "/profile",
+    },
   ];
 
   return (
@@ -76,6 +216,64 @@ export default function Home() {
           <SignOutButton />
         </header>
 
+        {/* Financial summary */}
+        <section className="mt-10">
+          <h2 className="text-xl font-semibold text-slate-900">
+            Financial overview
+          </h2>
+
+          {error && (
+            <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+              {error}
+              <button
+                onClick={loadDashboard}
+                className="ml-2 font-semibold underline"
+              >
+                Retry
+              </button>
+            </div>
+          )}
+
+          <div className="mt-5 grid gap-5 sm:grid-cols-2">
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <p className="text-sm font-medium text-slate-500">
+                Available balance
+              </p>
+
+              <p
+                className={`mt-3 text-2xl font-bold ${
+                  availableBalance < 0 ? "text-rose-600" : "text-slate-900"
+                }`}
+              >
+                {loading ? "Loading..." : formatMoney(availableBalance)}
+              </p>
+              
+              <p className="mt-2 text-sm text-slate-500">
+                Total income minus total expenses
+              </p>
+            </div>
+              
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <p className="text-sm font-medium text-slate-500">
+                Remaining budget
+              </p>
+              
+              <p
+                className={`mt-3 text-2xl font-bold ${
+                  remainingBudget < 0 ? "text-rose-600" : "text-indigo-600"
+                }`}
+              >
+                {loading ? "Loading..." : formatMoney(remainingBudget)}
+              </p>
+              
+              <p className="mt-2 text-sm text-slate-500">
+                Based on your active category budgets
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Workspace */}
         <section className="mt-10">
           <h2 className="text-xl font-semibold text-slate-900">
             Your workspace
@@ -91,9 +289,11 @@ export default function Home() {
                 <h3 className="text-lg font-semibold text-slate-900">
                   {section.name}
                 </h3>
+
                 <p className="mt-2 text-sm text-slate-500">
                   {section.description}
                 </p>
+
                 <p className="mt-5 text-sm font-semibold text-indigo-600">
                   Open section →
                 </p>
