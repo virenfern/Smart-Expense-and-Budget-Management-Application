@@ -8,7 +8,9 @@ from db import Base, SessionLocal, engine
 from errors import validation_error_handler
 from routes.auth import router as auth_router
 from routes.categories import router as categories_router
+from routes.expenses import router as expenses_router
 from routes.income import router as income_router
+from routes.transactions import router as transactions_router
 from services_categories import seed_default_categories
 
 @asynccontextmanager
@@ -47,6 +49,8 @@ app.add_exception_handler(RequestValidationError, validation_error_handler)
 app.include_router(auth_router)
 app.include_router(categories_router)
 app.include_router(income_router)
+app.include_router(expenses_router)
+app.include_router(transactions_router)
 
 
 @app.get("/")
