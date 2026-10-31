@@ -78,3 +78,24 @@ def make_client(session_factory, users):
 @pytest.fixture()
 def client(make_client):
     return make_client("alice")
+
+
+@pytest.fixture()
+def cat():
+    """Look up a default category id by (name, type)."""
+
+    def _cat(client, name, tx_type):
+        for c in client.get("/categories").json():
+            if c["name"] == name and c["type"] == tx_type:
+                return c["id"]
+        raise AssertionError(f"category {name}/{tx_type} not found")
+
+    return _cat
+
+
+@pytest.fixture(autouse=True)
+def _seed(session_factory):
+    from services_categories import seed_default_categories
+
+    with session_factory() as session:
+        seed_default_categories(session)
