@@ -19,9 +19,18 @@ jobs:
           cache: pip
           cache-dependency-path: backend/requirements.txt
       - name: Install dependencies
-        run: pip install -r requirements.txt pytest httpx
-      - name: Run tests
+        run: pip install -r requirements.txt pytest pytest-cov httpx
+      - name: Run tests with coverage
         env:
           JWT_SECRET_KEY: ci-test-secret
         run: |
-          if [ -d tests ]; then python -m pytest -q; else echo "No tests yet"; fi
+          python -m pytest -v --cov=. --cov-branch --cov-report=term-missing --cov-report=xml --cov-report=html --junitxml=unit-results.xml
+      - name: Upload test and coverage reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-and-coverage-reports
+          path: |
+            backend/htmlcov
+            backend/coverage.xml
+            backend/unit-results.xml
