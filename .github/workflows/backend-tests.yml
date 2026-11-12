@@ -60,6 +60,14 @@ jobs:
             --cov-report=html \
             --junitxml=unit-results.xml
 
+      - name: Publish test results
+        if: always()
+        uses: dorny/test-reporter@v2
+        with:
+          name: Backend test results
+          path: backend/unit-results.xml
+          reporter: java-junit
+
       - name: Upload test and coverage reports
         if: always()
         uses: actions/upload-artifact@v4
